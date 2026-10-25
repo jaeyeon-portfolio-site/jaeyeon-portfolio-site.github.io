@@ -1,0 +1,22 @@
+# "이 파일들은 GitHub(사이트)에 올리지 마" 목록
+# 내 컴퓨터 폴더에는 그대로 남아 있고, GitHub Desktop 이 올릴 때만 빼 줘요.
+
+# Claude 와 작업할 때 쓰는 작업 메모
+CLAUDE.md
+
+# Works 상세 페이지를 만들 때 참고한 디자인 원본 자료
+design-handoff/
+
+# 캐릭터 애니메이션 원본 PNG 24장 (사이트는 character.webp 하나만 써요)
+images/character/frame-*.png
+
+# 폴더마다 둔 안내 메모
+여기에_넣어주세요.txt
+
+# Windows · OneDrive · 편집기가 자동으로 만드는 파일
+desktop.ini
+Thumbs.db
+.DS_Store
+~$*
+*.tmp
+.vscode/

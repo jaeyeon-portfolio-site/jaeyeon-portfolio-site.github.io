@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>About</title>
+
+  <!-- 글꼴 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+
+  <!-- 브라우저 탭 아이콘 + 링크를 보낼 때 뜨는 미리보기 (카톡·인스타 DM 등). 그림: images/site/favicon.png, share.jpg -->
+  <link rel="icon" type="image/png" href="images/site/favicon.png">
+  <link rel="apple-touch-icon" href="images/site/favicon.png">
+  <meta name="description" content="2D 애니메이터 Jaeyeon Kim의 포트폴리오 — 애니메이션, 비주얼 개발, 일러스트레이션">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Jaeyeon Kim">
+  <meta property="og:title" content="Jaeyeon Kim — 2D Animation Artist">
+  <meta property="og:description" content="2D 애니메이터 Jaeyeon Kim의 포트폴리오 — 애니메이션, 비주얼 개발, 일러스트레이션">
+  <meta property="og:url" content="https://jaeyeon-portfolio-site.github.io/">
+  <meta property="og:image" content="https://jaeyeon-portfolio-site.github.io/images/site/share.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="about">
+
+  <!-- 캐릭터 + 메뉴 (js/layout.js 가 채워요) -->
+  <div data-site-header></div>
+
+  <main>
+
+    <!-- ① 가운데 자기소개 + 주변에 흩어진 사진 3장 -->
+    <section class="about-intro">
+      <figure class="about-photo about-photo--profile" data-photo="profile"></figure>
+      <figure class="about-photo about-photo--self" data-photo="selfPortrait">
+        <span data-flower="pink" class="flower--photo"></span>
+      </figure>
+      <figure class="about-photo about-photo--working" data-photo="working"></figure>
+
+      <div class="about-intro__text">
+        <p class="page-label" data-about-label></p>
+        <div class="about-intro__body" data-about-intro></div>
+      </div>
+    </section>
+
+    <!-- ② My Services (Experience 와 같은 작은 제목, 카드 4칸 한 줄) -->
+    <section class="section section--narrow" id="services">
+      <header class="section__head section__head--small">
+        <h2 class="section__title section__title--small">
+          <span data-flower="yellow" class="flower--section"></span>
+          <span data-services-title></span>
+        </h2>
+      </header>
+      <div class="services services--compact" data-services></div>
+    </section>
+
+    <!-- ③ 경력(왼쪽) + 학력·CV(오른쪽) 나란히 -->
+    <div class="section section--narrow about-history">
+    <section id="experience">
+      <header class="section__head section__head--small">
+        <h2 class="section__title section__title--small">
+          <span data-flower="yellow" class="flower--section"></span>
+          <span data-exp-title></span>
+        </h2>
+      </header>
+      <ul class="exp" data-exp-list></ul>
+    </section>
+
+    <section id="education">
+      <header class="section__head section__head--small">
+        <h2 class="section__title section__title--small">
+          <span data-flower="yellow" class="flower--section"></span>
+          <span data-edu-title></span>
+        </h2>
+      </header>
+      <ul class="exp" data-edu-list></ul>
+
+      <a class="pill-btn" data-resume href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19.5h14"/></svg>
+        <span data-resume-label></span>
+      </a>
+    </section>
+    </div>
+
+  </main>
+
+  <!-- 하단 (js/layout.js 가 채워요) -->
+  <div data-site-footer></div>
+
+  <script src="content.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

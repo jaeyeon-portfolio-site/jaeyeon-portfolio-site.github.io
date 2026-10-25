@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Portfolio</title>
+
+  <!-- 글꼴: Pretendard(한글), Bricolage Grotesque(영어 제목), JetBrains Mono(작은 꾸밈 글씨) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+
+  <!-- 브라우저 탭 아이콘 + 링크를 보낼 때 뜨는 미리보기 (카톡·인스타 DM 등). 그림: images/site/favicon.png, share.jpg -->
+  <link rel="icon" type="image/png" href="images/site/favicon.png">
+  <link rel="apple-touch-icon" href="images/site/favicon.png">
+  <meta name="description" content="2D 애니메이터 Jaeyeon Kim의 포트폴리오 — 애니메이션, 비주얼 개발, 일러스트레이션">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Jaeyeon Kim">
+  <meta property="og:title" content="Jaeyeon Kim — 2D Animation Artist">
+  <meta property="og:description" content="2D 애니메이터 Jaeyeon Kim의 포트폴리오 — 애니메이션, 비주얼 개발, 일러스트레이션">
+  <meta property="og:url" content="https://jaeyeon-portfolio-site.github.io/">
+  <meta property="og:image" content="https://jaeyeon-portfolio-site.github.io/images/site/share.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="top" data-page="home">
+
+  <!-- 캐릭터 + 메뉴 (js/layout.js 가 채워요) -->
+  <div data-site-header></div>
+
+  <main>
+
+    <!-- ① 첫 화면 (Hero) -->
+    <section class="hero">
+      <div class="hero__inner">
+        <h1 class="hero__name" data-hero-name></h1>
+        <p class="hero__role">
+          <svg class="hero__sparkle" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7Z"/></svg>
+          <span data-hero-role></span>
+          <svg class="hero__sparkle hero__sparkle--small" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7Z"/></svg>
+        </p>
+        <p class="hero__skills" data-hero-skills></p>
+      </div>
+
+      <a class="scroll-hint" href="#reel" aria-label="아래로 스크롤">
+        <span class="scroll-hint__label">scroll</span>
+        <svg class="scroll-hint__icon" viewBox="0 0 32 44" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="29" height="41" rx="14.5"/>
+          <path d="M10 20.5 16 26.5 22 20.5"/>
+        </svg>
+      </a>
+    </section>
+
+    <!-- ② 데모릴 (Demo Reel) -->
+    <section class="section" id="reel">
+      <header class="section__head">
+        <h2 class="section__title">
+          <span data-flower="yellow" class="flower--section"></span>
+          <span data-reel-title></span>
+        </h2>
+        <p class="section__desc" data-reel-desc></p>
+      </header>
+      <div class="reel" data-reel-frame></div>
+    </section>
+
+    <!-- ③ 회사·학교 작업 (Works) -->
+    <section class="section" id="works">
+      <header class="section__head">
+        <h2 class="section__title">
+          <span data-flower="yellow" class="flower--section"></span>
+          <span data-works-title></span>
+        </h2>
+        <p class="section__desc" data-works-desc></p>
+      </header>
+      <div class="card-grid card-grid--works" data-works-grid></div>
+    </section>
+
+    <!-- ④ 개인 작업 (Personal Works) -->
+    <section class="section" id="personal">
+      <header class="section__head">
+        <h2 class="section__title">
+          <span data-flower="yellow" class="flower--section"></span>
+          <span data-personal-title></span>
+        </h2>
+        <p class="section__desc" data-personal-desc></p>
+      </header>
+      <div class="card-grid card-grid--personal" data-personal-grid></div>
+    </section>
+
+  </main>
+
+  <!-- 하단 (js/layout.js 가 채워요) -->
+  <div data-site-footer></div>
+
+  <script src="content.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Contact</title>
+
+  <!-- 글꼴 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+
+  <!-- 브라우저 탭 아이콘 + 링크를 보낼 때 뜨는 미리보기 (카톡·인스타 DM 등). 그림: images/site/favicon.png, share.jpg -->
+  <link rel="icon" type="image/png" href="images/site/favicon.png">
+  <link rel="apple-touch-icon" href="images/site/favicon.png">
+  <meta name="description" content="2D 애니메이터 Jaeyeon Kim의 포트폴리오 — 애니메이션, 비주얼 개발, 일러스트레이션">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Jaeyeon Kim">
+  <meta property="og:title" content="Jaeyeon Kim — 2D Animation Artist">
+  <meta property="og:description" content="2D 애니메이터 Jaeyeon Kim의 포트폴리오 — 애니메이션, 비주얼 개발, 일러스트레이션">
+  <meta property="og:url" content="https://jaeyeon-portfolio-site.github.io/">
+  <meta property="og:image" content="https://jaeyeon-portfolio-site.github.io/images/site/share.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="contact">
+
+  <!-- 캐릭터 + 메뉴 (js/layout.js 가 채워요) -->
+  <div data-site-header></div>
+
+  <main class="contact">
+
+    <!-- 제목 + 주변 꽃 2개 -->
+    <h1 class="contact__title">
+      <span data-flower="yellow" class="flower--contact-a"></span>
+      <span data-contact-title></span>
+      <span data-flower="pink" class="flower--contact-b"></span>
+    </h1>
+    <p class="contact__intro" data-contact-intro></p>
+    <a class="contact__email" data-contact-email href="#"></a>
+
+    <!-- 입력 양식 (Web3Forms 로 보내요) -->
+    <form class="contact-form" data-contact-form novalidate>
+      <!-- 스팸 방지 함정 칸: 사람 눈에는 안 보여요. 로봇이 체크하면 보내지 않아요 -->
+      <input class="contact-form__trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="field">
+        <label class="field__label" for="cf-name" data-label="name"></label>
+        <input class="field__input" id="cf-name" name="name" type="text" autocomplete="name" required>
+        <p class="field__error" data-error="name"></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="cf-email" data-label="email"></label>
+        <input class="field__input" id="cf-email" name="email" type="email" autocomplete="email" required>
+        <p class="field__error" data-error="email"></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="cf-message" data-label="message"></label>
+        <textarea class="field__input field__input--area" id="cf-message" name="message" rows="2" required></textarea>
+        <p class="field__error" data-error="message"></p>
+      </div>
+
+      <!-- Submit: 상단 메뉴처럼 손그림 타원 (js/layout.js 가 그려요) -->
+      <!-- 보내기 버튼(가운데) + 오른쪽 옆 상태 문구 -->
+      <div class="form-actions">
+        <button class="ink-btn" type="submit" data-ink><span data-submit-label>보내기</span></button>
+        <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+      </div>
+    </form>
+
+    <!-- 맨 아래 아이콘 링크 (주소는 content.js 의 linkedin / instagram / resume) -->
+    <div class="contact__links">
+      <a class="icon-link" data-contact-social="linkedin" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8.6 10.6v5.2M8.6 8.2v.01M11.8 15.8v-5.2M11.8 12.9c0-1.4 1-2.3 2.1-2.3s1.9.8 1.9 2.2v3"/></svg>
+        <span class="icon-link__tip" aria-hidden="true">LinkedIn</span>
+      </a>
+      <a class="icon-link" data-contact-social="instagram" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.6" cy="7.4" r=".6"/></svg>
+        <span class="icon-link__tip" aria-hidden="true">Instagram</span>
+      </a>
+      <a class="icon-link icon-link--text" data-resume href="#" aria-label="CV">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H8A2.5 2.5 0 0 0 5.5 6v12A2.5 2.5 0 0 0 8 20.5h8a2.5 2.5 0 0 0 2.5-2.5V8L14 3.5Z"/><path d="M14 3.5V8h4.5"/><path d="M12 10.5v6M9.5 14l2.5 2.5 2.5-2.5"/></svg>
+        <span class="icon-link__text" aria-hidden="true">CV</span>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- 하단 (js/layout.js 가 채워요) -->
+  <div data-site-footer></div>
+
+  <script src="content.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
