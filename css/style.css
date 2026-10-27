@@ -71,6 +71,26 @@ img, video {
 /* 숨기기로 한 것은 항상 숨겨요 */
 [hidden] { display: none !important; }
 
+/* 페이지 전환 효과 (View Transitions, 2026-10-28)
+   사이트 안에서 페이지를 옮기면 이전 화면은 흐려지고 새 화면이 살짝 떠오르며 나타나요.
+   캐릭터와 메뉴는 그 자리에 그대로. 지원하지 않는 브라우저(파이어폭스, 파일 더블클릭)는 지금처럼 바로 넘어가요.
+   효과를 켜는 줄(@view-transition)은 각 HTML 머리에 직접 있어요 (이 파일을 다 읽기 전에도 켜져 있도록).
+   '움직임 줄이기' 설정이면 그 줄이 효과를 꺼요. */
+::view-transition-old(root) { animation: page-out 0.22s ease both; }
+::view-transition-new(root) { animation: page-in 0.35s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes page-out { to { opacity: 0; } }
+@keyframes page-in { from { opacity: 0; transform: translateY(8px); } }
+.character { view-transition-name: site-character; }
+.site-nav { view-transition-name: site-nav; }
+::view-transition-group(site-character),
+::view-transition-group(site-nav),
+::view-transition-new(site-character),
+::view-transition-new(site-nav) { animation: none; }
+::view-transition-old(site-character),
+::view-transition-old(site-nav) { display: none; }
+/* 전환 중에는 메뉴의 유리 효과(뒤 흐림)를 잠깐 꺼요. 켜 두면 흐림이 메뉴 글자에까지 겹쳐 번져 보여요 */
+html:active-view-transition .site-nav { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
 /* 메뉴를 눌러 이동했을 때 제목이 메뉴에 가려지지 않게 */
 section[id], footer[id] { scroll-margin-top: 120px; }
 /* Works 메뉴: 위 데모릴은 화면 밖으로 (섹션 위 여백 96px 을 빼고 계산)
