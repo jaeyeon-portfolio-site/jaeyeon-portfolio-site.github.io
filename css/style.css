@@ -520,6 +520,7 @@ section[id], footer[id] { scroll-margin-top: 120px; }
   font-size: 11px;
 }
 .is-loaded .placeholder { display: none; }
+.is-loading .placeholder > * { visibility: hidden; }   /* 받는 중엔 연한 빈칸만 (파일 이름 안내는 파일이 없을 때만) */
 
 /* =========================================================
    ③ Works / Personal Works 카드 갤러리 (모든 카드 크기가 같아요)

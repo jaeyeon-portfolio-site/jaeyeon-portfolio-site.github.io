@@ -342,13 +342,13 @@
         b.setAttribute('aria-label', 'Concept Art ' + (k + 1) + ' 크게 보기');
         var im = el('img');
         im.alt = '';
-        // webp / jpg / png 로 바꿔 차례로 더 찾고, 그래도 없으면 숨겨요
-        var others = UI.swapExtension(cp.src);
+        // 작은 그림은 목록용 사본(list/)으로. 없으면 원본 → webp / jpg / png 로 바꿔 차례로 더 찾고, 그래도 없으면 숨겨요
+        var others = [cp.src].concat(UI.swapExtension(cp.src));
         im.onerror = function () {
           if (others.length) { cp.src = others.shift(); im.src = cp.src; return; }
           b.hidden = true;
         };
-        im.src = cp.src;
+        im.src = listPath(cp.src);
         b.appendChild(im);
         b.addEventListener('click', function () { pick(k); });
         vThumbs.appendChild(b);
@@ -386,7 +386,15 @@
         if (pr && pr.catch) pr.catch(function () {});   // 브라우저가 자동 재생을 막으면 재생 버튼을 눌러요
       } else {
         stopVideo();
-        vImg.src = x.src;
+        if (x.thumb && x.thumb !== x.src) {
+          // 이미 받은 목록용 작은 그림을 먼저 보여 주고, 원본을 다 받으면 바꿔요
+          vImg.src = x.thumb;
+          var full = new Image();
+          full.onload = function () { if (vImg.getAttribute('src') === x.thumb) vImg.src = x.src; };
+          full.src = x.src;
+        } else {
+          vImg.src = x.src;
+        }
       }
       vImg.alt = x.alt || '';
     }
@@ -454,28 +462,59 @@
 
   // 영상 파일(mp4 등)인지: Personal Works 에서만 써요 (Works 는 Vimeo / YouTube 링크만)
   function isVideoFile(s) { return /\.(mp4|webm|m4v|mov)$/i.test(String(s || '').split(/[?#]/)[0]); }
+  // 움직이는 그림: .gif, 또는 이름이 gif- 로 시작하는 .webp (예: "gif-00.webp" = 애니메이션 WebP)
+  function isAnimFile(s) { return /\.gif$/i.test(s) || /(^|\/)gif-[^/]+\.webp$/i.test(s); }
+  // 목록용 작은 그림: 같은 폴더의 list/ 안, 같은 이름의 .webp (영상은 첫 장면 그림)
+  //   예) images/personal/croquis/01.webp → images/personal/croquis/list/01.webp
+  function listPath(src) { return String(src).replace(/([^/]+?)\.(webp|jpe?g|png|gif|mp4|webm|m4v|mov)$/i, 'list/$1.webp'); }
+  // 칸 비율(가로÷세로): js/sizes.js 목록 → 브라우저에 기억해 둔 값 → 둘 다 없으면 처음 받을 때 재서 기억해요
+  var RATIO_KEY = 'pw-ratios';
+  var savedRatios = (function () {
+    try { return JSON.parse(localStorage.getItem(RATIO_KEY)) || {}; } catch (e) { return {}; }
+  })();
+  function knownRatio(src) { return (window.SITE_SIZES || {})[src] || savedRatios[src] || 0; }
+  function rememberRatio(src, r) {
+    if (!r || knownRatio(src)) return;
+    savedRatios[src] = Math.round(r * 10000) / 10000;
+    try { localStorage.setItem(RATIO_KEY, JSON.stringify(savedRatios)); } catch (e) {}
+  }
   var CLIP_PREVIEW = 5;   // 마우스를 올렸을 때 소리 없이 반복하는 앞부분 길이(초)
   var CLIP_MIN_RATIO = 4 / 5;   // 작업물 모음에서 영상 칸의 가장 좁은 비율 (세로 영상은 4:5 칸)
 
   // 영상 파일 칸: 평소엔 첫 장면(썸네일)만, 마우스를 올리면 앞 5초를 소리 없이 반복, 내리면 처음 장면으로
-  function clipBox(cell, srcUrl, alt, hint) {
+  // posterUrl(첫 장면 그림, list/)이 있으면 그 그림만 먼저 보여 주고, 영상은 마우스를 올릴 때 받아요
+  function clipBox(cell, srcUrl, alt, hint, posterUrl) {
     var box = UI.mediaBox('pw-media pw-media--clip', '', alt, hint);
+    box.classList.add('is-loading');
+    function ready() { box.classList.remove('is-loading'); box.classList.add('is-loaded'); }
     var v = document.createElement('video');
     v.muted = true;
     v.setAttribute('muted', '');
     v.playsInline = true;
     v.setAttribute('playsinline', '');
-    v.preload = 'metadata';
+    v.preload = posterUrl ? 'none' : 'metadata';
     v.loop = true;   // 5초보다 짧은 영상도 끝나면 처음부터 반복
     v.setAttribute('controlsList', 'nodownload');
     v.setAttribute('aria-hidden', 'true');
     v.addEventListener('loadedmetadata', function () {
-      box.classList.add('is-loaded');
+      ready();
       // 줄 배치용 비율. 세로로 긴 영상(9:16, 2:3)은 너무 좁아지지 않게 칸만 4:5 로 (위아래 살짝 잘림, 크게 보기는 원본 비율)
-      if (v.videoWidth && v.videoHeight) cell.style.setProperty('--r', Math.max(CLIP_MIN_RATIO, v.videoWidth / v.videoHeight));
+      if (v.videoWidth && v.videoHeight) {
+        cell.style.setProperty('--r', Math.max(CLIP_MIN_RATIO, v.videoWidth / v.videoHeight));
+        rememberRatio(srcUrl, v.videoWidth / v.videoHeight);
+      }
     });
-    v.addEventListener('error', function () { v.remove(); });   // 파일이 없으면 빈칸 + 파일 이름 안내
+    v.addEventListener('error', function () {   // 파일이 없으면 빈칸 + 파일 이름 안내
+      v.remove();
+      if (!box.classList.contains('is-loaded')) { box.classList.remove('is-loading'); box.classList.add('is-missing'); }
+    });
     v.addEventListener('timeupdate', function () { if (v.currentTime >= CLIP_PREVIEW) v.currentTime = 0; });
+    if (posterUrl) {
+      var still = new Image();
+      still.onload = function () { v.poster = posterUrl; ready(); };
+      still.onerror = function () { v.preload = 'metadata'; v.load(); };   // 첫 장면 그림이 없으면 예전처럼 영상에서
+      still.src = posterUrl;
+    }
     v.src = srcUrl + '#t=0.1';   // 첫 장면을 썸네일로
     box.appendChild(v);
 
@@ -490,7 +529,7 @@
       });
       cell.addEventListener('mouseleave', function () {
         v.pause();
-        if (box.classList.contains('is-loaded')) v.currentTime = 0.1;
+        if (v.readyState) v.currentTime = 0.1;
       });
     }
     return box;
@@ -515,7 +554,7 @@
       var file = String(it);
       if (isVideoFile(file)) return { type: 'video', file: file };
       if (videoEmbed(file)) return { type: 'video', vimeo: file, ratio: '16:9' };   // 링크만 적어도 돼요
-      return { type: /\.gif$/i.test(file) ? 'gif' : 'image', file: file };
+      return { type: isAnimFile(file) ? 'gif' : 'image', file: file };
     }
     function extend(a, b) { Object.keys(b).forEach(function (k) { a[k] = b[k]; }); return a; }
     // 영상의 컨셉아트로 지정한 그림은 영상 창에서만 보여요 → 작업물 모음과 Image 탭에서는 빼요
@@ -602,12 +641,12 @@
         cell = el('button', 'pw-item pw-item--clip');
         cell.type = 'button';
         cell.setAttribute('aria-label', 'Video ' + clipFile + ' 크게 보기');
-        if (x.ratio) {   // 영상을 불러오기 전에도 자리를 맞게 잡아 두기
-          var rq = x.ratio.split(':');
-          cell.style.setProperty('--r', Math.max(CLIP_MIN_RATIO, (parseFloat(rq[0]) || 16) / (parseFloat(rq[1]) || 9)));
-        }
         x.src = imgPath(c.folder, p.id, clipFile);
-        cell.appendChild(clipBox(cell, x.src, p.title + ' ' + clipFile, p.id + '/' + clipFile));
+        // 영상을 불러오기 전에도 자리를 맞게 잡아 두기 (비율 목록 → content.js 의 ratio)
+        var rq = (x.ratio || '').split(':');
+        var clipR = knownRatio(x.src) || (x.ratio ? (parseFloat(rq[0]) || 16) / (parseFloat(rq[1]) || 9) : 0);
+        if (clipR) cell.style.setProperty('--r', Math.max(CLIP_MIN_RATIO, clipR));
+        cell.appendChild(clipBox(cell, x.src, p.title + ' ' + clipFile, p.id + '/' + clipFile, listPath(x.src)));
         var mark = el('span', 'pw-badge pw-badge--play');
         mark.setAttribute('aria-hidden', 'true');
         mark.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 7.5v9l7.5-4.5L9 7.5Z"/></svg>';
@@ -632,10 +671,17 @@
         cell.type = 'button';
         cell.setAttribute('aria-label', name + ' ' + x.file + ' 크게 보기');
         x.src = imgPath(c.folder, p.id, x.file);
-        var media = UI.mediaBox('pw-media', x.src, p.title + ' ' + x.file, p.id + '/' + x.file, true);   // webp / jpg / png 모두
+        x.thumb = listPath(x.src);   // 목록에는 작은 사본, 원본은 크게 볼 때만
+        var known = knownRatio(x.src);
+        if (known) cell.style.setProperty('--r', known);   // 받기 전에도 칸 크기를 바로 잡아요
+        // 작은 사본이 없으면 원본 → webp / jpg / png 로 바꿔 차례로 찾아요
+        var media = UI.mediaBox('pw-media', x.thumb, p.title + ' ' + x.file, p.id + '/' + x.file,
+          [x.src].concat(UI.swapExtension(x.src)));
         var pic = $('img', media);
-        if (pic) pic.addEventListener('load', function () {
-          if (pic.naturalWidth && pic.naturalHeight) cell.style.setProperty('--r', pic.naturalWidth / pic.naturalHeight);
+        if (pic && !known) pic.addEventListener('load', function () {
+          if (!pic.naturalWidth || !pic.naturalHeight) return;
+          cell.style.setProperty('--r', pic.naturalWidth / pic.naturalHeight);
+          rememberRatio(x.src, pic.naturalWidth / pic.naturalHeight);
         });
         cell.appendChild(media);
         if (x.type === 'gif') {
@@ -736,13 +782,47 @@
           var rr = x.ratio.split(':');
           return extend({ embed: x.vimeo, ratio: (parseFloat(rr[0]) || 16) / (parseFloat(rr[1]) || 9), alt: x.title || p.title + ' video' }, info);
         }
-        var im = $('.pw-media img', c2);   // 확장자를 바꿔 찾은 경우 실제로 불러온 파일
-        return extend({ src: im ? im.src : x.src, alt: p.title + ' ' + x.file, video: x.type === 'video' }, info);
+        var im = $('.pw-media img', c2);
+        if (!im) return extend({ src: x.src, alt: p.title + ' ' + x.file, video: x.type === 'video' }, info);
+        // 작은 사본을 불러왔으면 크게 보기는 원본, 사본이 없어 원본(또는 확장자를 바꿔 찾은 파일)을 불러왔으면 그 파일
+        var usedThumb = im.getAttribute('src') === x.thumb;
+        return extend({ src: usedThumb ? x.src : im.src, thumb: usedThumb ? im.src : '', alt: p.title + ' ' + x.file }, info);
       }), shown.indexOf(cell), cell);
     }
     function closeViewer() { getViewer().close(); }
 
     setFilter('all');
+
+    // 첫 화면 그림은 바로 받기 (늦게 받기로 두면 오히려 늦게 떠요)
+    cells.slice(0, 8).forEach(function (cl, k) {
+      var im = $('.pw-media img', cl);
+      if (!im) return;
+      im.loading = 'eager';
+      if (k < 4) im.fetchPriority = 'high';
+    });
+
+    // 다른 탭 그림 미리 받기: 페이지가 뜨고 0.5초 뒤, 아직 안 받은 목록용 작은 그림을 2장씩 차례로
+    // (영상 파일은 미리 받지 않아요. 휴대폰 데이터 절약 모드면 건너뛰어요)
+    function prefetchRest() {
+      if (navigator.connection && navigator.connection.saveData) return;
+      var queue = cells.map(function (cl) { return $('.pw-media img', cl); })
+        .filter(function (im) { return im && im.loading === 'lazy'; });
+      function next() {
+        var im = queue.shift();
+        if (!im) return;
+        var done = false;
+        function go() { if (!done) { done = true; next(); } }
+        im.addEventListener('load', go);
+        im.addEventListener('error', go);
+        im.loading = 'eager';
+        if (im.complete && im.naturalWidth) go();
+      }
+      next();
+      next();
+    }
+    function startPrefetch() { setTimeout(prefetchRest, 500); }
+    if (document.readyState === 'complete') startPrefetch();
+    else window.addEventListener('load', startPrefetch);
   }
 
   /* =========================================================

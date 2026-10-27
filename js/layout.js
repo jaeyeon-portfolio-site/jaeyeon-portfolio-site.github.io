@@ -50,6 +50,8 @@
     var order = ext === 'webp' ? ['.jpg', '.png'] : ext === 'png' ? ['.webp', '.jpg'] : ['.webp', '.png'];
     return order.map(function (e) { return base + e; });
   }
+  // swapExt 에 주소 목록(배열)을 주면 그 순서대로 다시 찾아요 (예: 목록용 작은 그림이 없으면 원본)
+  // 받는 중(is-loading)에는 연한 빈칸만, 끝내 없을 때(is-missing)만 파일 이름 안내가 보여요
   function mediaBox(cls, src, alt, hint, swapExt) {
     var box = el('div', cls);
     var ph = el('div', 'placeholder');
@@ -61,10 +63,13 @@
       img.alt = alt || '';
       img.loading = 'lazy';
       img.decoding = 'async';
-      var others = swapExt ? swapExtension(src) : [];
-      img.onload = function () { box.classList.add('is-loaded'); };
+      var others = Array.isArray(swapExt) ? swapExt.slice() : swapExt ? swapExtension(src) : [];
+      box.classList.add('is-loading');
+      img.onload = function () { box.classList.remove('is-loading'); box.classList.add('is-loaded'); };
       img.onerror = function () {
         if (others.length) { img.src = others.shift(); return; }
+        box.classList.remove('is-loading');
+        box.classList.add('is-missing');
         img.remove();
       };
       img.src = src;

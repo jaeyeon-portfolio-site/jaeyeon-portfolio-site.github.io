@@ -543,8 +543,11 @@ const SITE = {
        ① 이미지  "01.webp"  "02.webp"  "03.webp"
                   → 폴더(images/personal/폴더이름/)에 같은 이름으로 넣어요
                   → 원본 비율 그대로 보여요 (세로로 길어도, 가로로 길어도 잘리지 않아요)
-       ② GIF     "04.gif"
-                  → 파일 이름이 .gif 로 끝나면 자동으로 GIF 로 분류돼요
+       ② 움직이는 그림  "gif-04.webp" (또는 "04.gif")
+                  → 이름이 gif- 로 시작하는 .webp(애니메이션 WebP), 또는 .gif 로 끝나면 GIF 탭으로 분류돼요
+                  → GIF 는 애니메이션 WebP 로 바꾸면 훨씬 가벼워요 (Claude 에게 부탁하세요)
+       ※ 목록에는 같은 폴더 list/ 안의 작은 사본(같은 이름 .webp)을 쓰고, 원본은 눌러서 크게 볼 때만 받아요.
+         새 그림을 넣으면 Claude 에게 "목록용 사본 만들어 줘" 라고 해 주세요 (사본이 없어도 원본이 보여요).
        ③ 영상 파일  "run.mp4"
                   → 폴더(images/personal/폴더이름/)에 같은 이름으로 넣어요
                   → 평소엔 첫 장면만 보이고, 마우스를 올리면 앞 5초가 소리 없이 반복돼요
@@ -580,8 +583,8 @@ const SITE = {
         "10.webp", "11.webp", "12.webp", "13.webp", "14.webp", "15.webp", "16.webp", "17.webp", "18.webp",
         "19.webp", "20.webp", "21.webp", "22.webp", "23.webp", "24.webp", "25.webp", "26.webp", "27.webp",
 
-        // GIF (00.gif 가 GIF 중 맨 앞)
-        "00.gif", "01.gif", "02.gif", "03.gif", "04.gif", "05.gif", "06.gif", "07.gif",
+        // 움직이는 그림 (gif-00 이 맨 앞. GIF 를 애니메이션 WebP 로 바꾼 파일이에요)
+        "gif-00.webp", "gif-01.webp", "gif-02.webp", "gif-03.webp", "gif-04.webp", "gif-05.webp", "gif-06.webp", "gif-07.webp",
 
         // 영상 (Vimeo 링크) — 따옴표 "" 안에 Vimeo 주소를 붙여넣으세요. 비어 있으면 화면에 안 나와요
         //   ratio   : 영상 비율이라 그대로 두세요 (9:16 세로 / 16:9 가로 / 2:3 세로)
