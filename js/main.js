@@ -17,7 +17,7 @@
   function imgPath(folder, id, file) {
     if (!file) return '';
     if (/^(https?:)?\/\//.test(file) || /^(images\/|\.?\/)/.test(file)) return file; // 직접 경로를 쓴 경우
-    // "color-croquis/01.png" 처럼 폴더 안의 작은 폴더도 돼요 → images/personal/croquis/color-croquis/01.png
+    // "color-croquis/01.webp" 처럼 폴더 안의 작은 폴더도 돼요 → images/personal/croquis/color-croquis/01.webp
     return 'images/' + folder + '/' + id + '/' + file;
   }
   // 태그 줄: 역할 · 회사/학교 · 연도 (비어 있는 칸은 빠져요)
@@ -163,7 +163,7 @@
       a.href = 'project.html?id=' + encodeURIComponent(p.id);
 
       a.appendChild(UI.mediaBox('card__media', imgPath(folder, p.id, p.thumb), p.title,
-        p.id + '/' + (p.thumb || 'thumb.jpg'), folder === 'personal'));   // Personal: jpg / png 둘 다
+        p.id + '/' + (p.thumb || 'thumb.webp'), folder === 'personal'));   // Personal: webp / jpg / png 모두
 
       a.appendChild(el('h3', 'card__title', p.title));
       if (withTags) {
@@ -224,6 +224,7 @@
       video.classList.add('vframe', 'vframe--file');
       var hv = document.createElement('video');
       hv.controls = true;
+      hv.setAttribute('controlsList', 'nodownload');   // 다운로드 버튼 숨김
       hv.playsInline = true;
       hv.setAttribute('playsinline', '');
       hv.preload = 'metadata';
@@ -278,7 +279,7 @@
     viewer.setAttribute('aria-label', '크게 보기');
     viewer.innerHTML =
       '<button class="viewer__btn viewer__close" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>' +
-      '<div class="viewer__stage"><div class="viewer__main"><img class="viewer__img" alt=""><video class="viewer__img viewer__video" controls playsinline hidden></video>' +
+      '<div class="viewer__stage"><div class="viewer__main"><img class="viewer__img" alt=""><video class="viewer__img viewer__video" controls controlslist="nodownload" playsinline hidden></video>' +
         '<div class="viewer__embed" hidden></div></div>' +
         '<aside class="viewer__info" hidden><h2 class="viewer__title"></h2><p class="viewer__logline"></p><ul class="viewer__awards"></ul>' +
         '<div class="viewer__concept"><p class="viewer__label">Concept Art</p><div class="viewer__thumbs"></div></div></aside></div>' +
@@ -341,10 +342,10 @@
         b.setAttribute('aria-label', 'Concept Art ' + (k + 1) + ' 크게 보기');
         var im = el('img');
         im.alt = '';
-        // jpg ↔ png 를 바꿔 한 번 더 찾고, 그래도 없으면 숨겨요
-        var other = cp.src.replace(/\.(jpe?g|png)$/i, function (m) { return /png/i.test(m) ? '.jpg' : '.png'; });
+        // webp / jpg / png 로 바꿔 차례로 더 찾고, 그래도 없으면 숨겨요
+        var others = UI.swapExtension(cp.src);
         im.onerror = function () {
-          if (other && other !== cp.src) { cp.src = other; other = ''; im.src = cp.src; return; }
+          if (others.length) { cp.src = others.shift(); im.src = cp.src; return; }
           b.hidden = true;
         };
         im.src = cp.src;
@@ -442,7 +443,7 @@
   }
 
   /* ---------- Personal Works 상세: 종류 탭 + 작업물 모음 + 크게 보기 ----------
-     content.js 의 images 에는 이미지("01.jpg"), GIF("04.gif"),
+     content.js 의 images 에는 이미지("01.webp"), GIF("04.gif"),
      영상({ vimeo: "https://vimeo.com/…", ratio: "9:16" })을 섞어 쓸 수 있어요. */
   var PW_TYPES = [
     { key: 'all',   label: 'All' },
@@ -466,6 +467,7 @@
     v.setAttribute('playsinline', '');
     v.preload = 'metadata';
     v.loop = true;   // 5초보다 짧은 영상도 끝나면 처음부터 반복
+    v.setAttribute('controlsList', 'nodownload');
     v.setAttribute('aria-hidden', 'true');
     v.addEventListener('loadedmetadata', function () {
       box.classList.add('is-loaded');
@@ -517,8 +519,8 @@
     }
     function extend(a, b) { Object.keys(b).forEach(function (k) { a[k] = b[k]; }); return a; }
     // 영상의 컨셉아트로 지정한 그림은 영상 창에서만 보여요 → 작업물 모음과 Image 탭에서는 빼요
-    // (확장자는 상관없이 이름으로 비교: "24.png" 와 "24.jpg" 는 같은 그림으로 봐요)
-    function baseName(f) { return String(f).toLowerCase().replace(/\.(jpe?g|png)$/, ''); }
+    // (확장자는 상관없이 이름으로 비교: "24.webp" 와 "24.png" 는 같은 그림으로 봐요)
+    function baseName(f) { return String(f).toLowerCase().replace(/\.(webp|jpe?g|png)$/, ''); }
     function withoutConcept(list) {
       var used = {};
       list.forEach(function (x) { (x.concept || []).forEach(function (f) { used[baseName(f)] = true; }); });
@@ -630,7 +632,7 @@
         cell.type = 'button';
         cell.setAttribute('aria-label', name + ' ' + x.file + ' 크게 보기');
         x.src = imgPath(c.folder, p.id, x.file);
-        var media = UI.mediaBox('pw-media', x.src, p.title + ' ' + x.file, p.id + '/' + x.file, true);   // jpg / png 둘 다
+        var media = UI.mediaBox('pw-media', x.src, p.title + ' ' + x.file, p.id + '/' + x.file, true);   // webp / jpg / png 모두
         var pic = $('img', media);
         if (pic) pic.addEventListener('load', function () {
           if (pic.naturalWidth && pic.naturalHeight) cell.style.setProperty('--r', pic.naturalWidth / pic.naturalHeight);

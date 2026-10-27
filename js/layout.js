@@ -40,12 +40,15 @@
     return /^(https?:|mailto:)/i.test(url) ? url : 'https://' + url;   // www. 로 시작해도 괜찮아요
   }
   // 이미지 칸: 이미지가 없으면 빈칸 + 파일 이름 안내
-  // swapExt = true 면 파일이 없을 때 확장자를 바꿔 한 번 더 찾아요 (.jpg ↔ .png, .jpeg → .png)
-  //   예) content.js 에 "01.jpg" 라고 적었는데 폴더에 01.png 가 있어도 보여요 (Personal Works 용)
+  // swapExt = true 면 파일이 없을 때 확장자를 바꿔 차례로 더 찾아요 (.webp / .jpg / .png)
+  //   예) content.js 에 "01.webp" 라고 적었는데 폴더에 01.png 가 있어도 보여요 (Personal Works 용)
+  //   돌려주는 값: 다시 찾아볼 주소 목록 (예: "a.webp" → ["a.jpg", "a.png"])
   function swapExtension(src) {
-    var m = /\.(jpe?g|png)$/i.exec(src);
-    if (!m) return '';
-    return src.slice(0, m.index) + (/png/i.test(m[1]) ? '.jpg' : '.png');
+    var m = /\.(webp|jpe?g|png)$/i.exec(src);
+    if (!m) return [];
+    var base = src.slice(0, m.index), ext = m[1].toLowerCase();
+    var order = ext === 'webp' ? ['.jpg', '.png'] : ext === 'png' ? ['.webp', '.jpg'] : ['.webp', '.png'];
+    return order.map(function (e) { return base + e; });
   }
   function mediaBox(cls, src, alt, hint, swapExt) {
     var box = el('div', cls);
@@ -58,10 +61,10 @@
       img.alt = alt || '';
       img.loading = 'lazy';
       img.decoding = 'async';
-      var other = swapExt ? swapExtension(src) : '';
+      var others = swapExt ? swapExtension(src) : [];
       img.onload = function () { box.classList.add('is-loaded'); };
       img.onerror = function () {
-        if (other) { var next = other; other = ''; img.src = next; return; }
+        if (others.length) { img.src = others.shift(); return; }
         img.remove();
       };
       img.src = src;
@@ -107,8 +110,16 @@
 
   window.UI = {
     $: $, el: el, richText: richText, paragraphs: paragraphs,
-    fullUrl: fullUrl, mediaBox: mediaBox, drawFlowers: drawFlowers,
+    fullUrl: fullUrl, mediaBox: mediaBox, swapExtension: swapExtension, drawFlowers: drawFlowers,
   };
+
+  /* ---------- 그림·영상 저장 막기 (2026-10-28) ----------
+     그림·영상 위에서만 오른쪽 클릭 메뉴와 끌어서 저장을 막아요 (글자·링크 위는 그대로).
+     document 에 한 번만 걸어서 나중에 그려지는 카드·크게 보기 그림에도 다 적용돼요.
+     누르기(크게 보기, 링크 이동)는 막지 않아요.                                      */
+  function isMedia(t) { return t && t.closest && t.closest('img, video, picture, svg image'); }
+  document.addEventListener('contextmenu', function (e) { if (isMedia(e.target)) e.preventDefault(); });
+  document.addEventListener('dragstart', function (e) { if (isMedia(e.target)) e.preventDefault(); });
 
   /* =========================================================
      1) 왼쪽 위 캐릭터 + 오른쪽 위 메뉴
@@ -241,10 +252,19 @@
     });
   }
 
+  // 고정 메뉴(About·Contact·상세)는 글꼴이 뜨고 타원을 다시 그린 뒤 한 박자 늦게 켜요
+  // → 처음부터 다 그려진 채가 아니라 메인처럼 펜으로 그리듯 나타나요 (2026-10-28)
+  function setActiveLater(key) {
+    var go = function () {
+      requestAnimationFrame(function () { requestAnimationFrame(function () { setActiveNav(key); }); });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+  }
+
   // 어느 메뉴에 타원을 그릴지
-  if (page === 'about') setActiveNav('about');
-  else if (page === 'contact') setActiveNav('contact');
-  else if (page === 'project') setActiveNav('works');
+  if (page === 'about') setActiveLater('about');
+  else if (page === 'contact') setActiveLater('contact');
+  else if (page === 'project') setActiveLater('works');
   else {
     // 메인: Works ~ Personal Works 부분을 보고 있을 때만 Works
     var ticking = false;
